@@ -29,6 +29,11 @@ angular.module('zjubme', ['ionic','zjubme.services', 'zjubme.directives', 'zjubm
   // Each state's controller can be found in controllers.js
   //注册与登录
   $stateProvider
+    .state('intro', {
+      url: '/intro',
+      templateUrl: 'partials/other/intro.html',
+      controller: 'IntroCtrl'
+    })
     .state('signin', {
       cache: false,
       url: '/signin',
@@ -212,7 +217,12 @@ angular.module('zjubme', ['ionic','zjubme.services', 'zjubme.directives', 'zjubm
       }
     });
 
-  $urlRouterProvider.otherwise('/signin');
+  if (window.localStorage['FirstUse'] === "1") {
+        $urlRouterProvider.otherwise('/signin');
+    } else {
+        $urlRouterProvider.otherwise('/intro');            
+    }
+  
 })
 // --------不同平台的相关设置----------------
 .config(function($ionicConfigProvider) {

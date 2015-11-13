@@ -2,11 +2,31 @@
 angular.module('zjubme.controllers', ['ionic','ngResource','zjubme.services', 'zjubme.directives', 'ja.qr','ionic-datepicker'])//,'ngRoute'
 
 // 初装或升级App的介绍页面控制器  /暂时不用
-.controller('intro', ['$scope', 'Storage', function ($scope, Storage) {
-  // Storage.set('initState', 'simple.homepage');
-  Storage.set('myAppVersion', myAppVersion);
-}])
+.controller('IntroCtrl', function($scope, $state, $ionicSlideBoxDelegate, Storage) {
+ 
+  if(Storage.get('FirstUse')=='1') 
+  {
+    $state.go('signin');
+  }
 
+  $scope.startApp = function() {
+    $state.go('signin');
+    Storage.set('FirstUse', '1');
+  };
+
+  $scope.next = function() {
+    $ionicSlideBoxDelegate.next();
+  };
+
+  $scope.previous = function() {
+    $ionicSlideBoxDelegate.previous();
+  };
+
+  // Called each time the slide changes
+  $scope.slideChanged = function(index) {
+    $scope.slideIndex = index;
+  };
+})
 // --------登录注册、设置修改密码-熊佳臻----------------
 //登录
 .controller('SignInCtrl', ['$scope','$state','$http', '$timeout','$window', 'userservice','Storage','loading','$ionicHistory', 'jpushService',function($scope, $state,$http, $timeout ,$window, userservice, Storage,loading,$ionicHistory,jpushService) {
@@ -1300,6 +1320,20 @@ function($scope, $timeout, $ionicModal,$ionicHistory, $cordovaDatePicker,$cordov
 .controller('graphcontroller', ['$scope', '$http','$ionicSideMenuDelegate','$timeout','$state','$window','$ionicPopover', 'PlanInfo','$ionicLoading', 'Storage',
     function($scope, $http, $ionicSideMenuDelegate,$timeout, $state, $window, $ionicPopover, PlanInfo, $ionicLoading, Storage) {
 
+       $ionicPopover.fromTemplateUrl('templates/popover.html', {
+          scope: $scope,
+        }).then(function(popover) {
+          $scope.popover = popover;
+        });
+       
+       $ionicPopover.fromTemplateUrl('templates/popover1.html', {
+          scope: $scope,
+        }).then(function(popover1) {
+          $scope.popover1 = popover1;
+        });
+       $scope.popover = popover;
+
+
       //固定变量guide 也可读自json文件
       var  UserId= Storage.get('UID');
        var SBPGuide='';
@@ -1345,7 +1379,7 @@ function($scope, $timeout, $ionicModal,$ionicHistory, $cordovaDatePicker,$cordov
               StartDate =data[0].StartDate; 
               EndDate=data[0].EndDate;
 
-              init_graph(UserId, data[0].PlanNo, data[0].StartDate, data[0].EndDate, "Bloodpressure", "Bloodpressure_1", SBPGuide,80,200);
+              init_graph(UserId, data[0].PlanNo, data[0].StartDate, data[0].EndDate, "Bloodpressure", "Bloodpressure_1", SBPGuide,0,270,"收缩压 （单位：mmHg）");
               
            }
            else
@@ -1426,11 +1460,11 @@ function($scope, $timeout, $ionicModal,$ionicHistory, $cordovaDatePicker,$cordov
               {
                 createStockChart(data); //画图
                 setTimeout(function(){
-                  chart_graph.panels[1].addListener("clickGraphItem",showDetailInfo); 
+                 // chart_graph.panels[1].addListener("clickGraphItem",showDetailInfo); 
                  // $ionicLoading.hide();
                   chart_graph.panels[0].valueAxes[0].guides=Guide; //添加分级guide
-                  chart_graph.panels[0].title= title;
-                  chart_graph.panels[0].valueAxes[0].minimum=minimum;
+                  chart_graph.panels[0].title= '';
+                 chart_graph.panels[0].valueAxes[0].minimum=minimum;
                   chart_graph.panels[0].valueAxes[0].maximum=maximum;
                   chart_graph.validateNow();
                 },200); //添加点击事件
@@ -1554,9 +1588,10 @@ function($scope, $timeout, $ionicModal,$ionicHistory, $cordovaDatePicker,$cordov
         //autoMargins:false,
         panels: [{
           title: "收缩压 （单位：mmHg）",
+          panEventsEnabled:false,
           showCategoryAxis: false,
           percentHeight: 65,
-          autoMargins:false,
+          autoMargins:true,
             //marginTop:300,
             //marginLeft:90,
             //marginRight:90,
@@ -1574,8 +1609,8 @@ function($scope, $timeout, $ionicModal,$ionicHistory, $cordovaDatePicker,$cordov
               gridAlpha : 0,
               //labelOffset:0,
               labelsEnabled : false,
-              minimum: 80,  
-              maximum: 200,  
+              //minimum: 90,  
+              //maximum: 200,  
               guides:''   //区域划分ChartData.GraphGuide.GuideList
               
             }
@@ -1586,6 +1621,7 @@ function($scope, $timeout, $ionicModal,$ionicHistory, $cordovaDatePicker,$cordov
             },
             stockGraphs: [{   
               //type: "line",
+              //title: "",
               id: "graph1",
               valueField: "Value",
               labelText:"[[Value]]",
@@ -1619,7 +1655,11 @@ function($scope, $timeout, $ionicModal,$ionicHistory, $cordovaDatePicker,$cordov
             },
             {
               title: "任务依从情况",
+              panEventsEnabled:false,
               showCategoryAxis: true,
+              //fontFamily:'微软雅黑',
+              fontSize:15,
+             // marginTop:-10,
               //backgroundColor:"#CC0000",
               percentHeight: 35,
               valueAxes: [{
@@ -1635,6 +1675,7 @@ function($scope, $timeout, $ionicModal,$ionicHistory, $cordovaDatePicker,$cordov
             stockGraphs: [{
               //type: "line",
               id: "graph2",
+              //fontSize:11,
               valueField:"BulletValue",
               //lineColor: "#DADADA",
               lineColorField:"BulletColor",
@@ -1666,6 +1707,7 @@ function($scope, $timeout, $ionicModal,$ionicHistory, $cordovaDatePicker,$cordov
              fillAlpha:0.8
           },
           chartCursorSettings:{
+           // enabled:false,
             usePeriod: "7DD",
             zoomable:false,
             pan:false,
@@ -1683,9 +1725,10 @@ function($scope, $timeout, $ionicModal,$ionicHistory, $cordovaDatePicker,$cordov
             //graphBulletSize: 1,
           },
           chartScrollbarSettings: {  //时间缩放面板
+            enabled:false,
             zoomable:false,
             pan:true,           
-            enabled:true,
+            //enabled:true,
             position: "top",
             autoGridCount: true, //默认
             graph: "graph1",
