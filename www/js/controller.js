@@ -2232,7 +2232,7 @@ function($scope, $cordovaCalendar,PlanInfo,extraInfo) {
     function($scope, $http, $ionicSideMenuDelegate,$timeout, $state, $window, $ionicPopover, PlanInfo, $ionicLoading, Storage) {
 
       //固定变量guide 也可读自json文件
-      var  UserId= Storage.get('UID');
+       var  UserId= Storage.get('UID');
        var SBPGuide='';
        var DBPGuide='';
        var PulseGuide='';
@@ -2710,7 +2710,72 @@ function($scope, $cordovaCalendar,PlanInfo,extraInfo) {
       }
 
   }])
+//目标-依从率统计 张桠童
+.controller('compliancecontroller', ['$scope', 'Storage', 'PlanInfo', 
+  function($scope, Storage, PlanInfo){
+    var UserId= Storage.get('UID');
+    var PlanNo='';
+    $scope.StartDate =''; 
+    $scope.EndDate='';
+    $scope.Compliances = {};
 
+    //获取是否有正在执行的计划，如果没有则不显示(函数不能用$scope来定义)
+    var init_view = function(){
+      $scope.showGraph=false;  //控制图或者“没有计划”的显示
+      $scope.graphText="正在加载中，请等待...";
+      //判断计划是否存在
+      PlanInfo.Plan(UserId, "NULL", "M1", "3").then(function(data){
+        if((data!=null) && (data!=''))
+        {
+          $scope.showGraph = true;
+          PlanNo = data[0].PlanNo;
+          $scope.StartDate = data[0].StartDate;
+          $scope.EndDate = data[0].EndDate;
+          //先决条件确定完毕后，读入依从率统计情况
+          PlanInfo.TaskCompliances(PlanNo).then(function(data){
+            $scope.Compliances = data;
+            console.log($scope.Compliances);
+            console.log($scope.Compliances.Code);
+            console.log($scope.Compliances[0].DoDays);
+            console.log($scope.Compliances[0].UndoDays);             
+            // //画图开始
+            // var chart = AmCharts.makeChart( "chartdiv_"+$scope.Compliances[0].Code, {
+            //   "type": "pie",
+            //   "dataProvider": [ {
+            //     "country": "未完成天数",
+            //     "litres": 501.9,   
+            //   }, {
+            //     "country": "完成天数",
+            //     "litres": 301.9,
+            //   }],
+            //   "valueField": "litres",
+            //   "titleField": "country",
+            //   "colors": ["#FF0000","#00FF00"],
+            // } );
+            // //画图结束
+          }, function(error){
+            //读取数据失败
+          });
+        }else{
+          $scope.showGraph=false;
+          $scope.graphText="没有正在执行的计划";
+        }
+      }, function(error){
+        //读取数据失败
+      });//判断完毕
+    };//初始化完毕
+    init_view();
+
+    //依从率统计图
+    $scope.Compliances = function(){
+      // PlanInfo.TaskCompliances(PlanNo).then(function(data){
+      //   $scope.Compliances = data;
+      // }, function(error){
+      //   //读取数据失败
+      // });
+      
+    };
+}])
 //目标-列表 赵艳霞
 //目标-列表 赵艳霞
 .controller('recordListcontroller', ['$scope', '$cordovaDatePicker','$http','VitalInfo','$ionicLoading','Storage',

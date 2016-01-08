@@ -1,0 +1,22 @@
+<ion-view view-title="依从率统计情况">
+	<ion-content>
+		<ion-item ng-repeat="Compliance in Compliances" class="item item-thumbnail-left item-icon-right">
+			<!-- <div id='chartdiv_{{Compliance.Code}}'></div> -->
+		    <b><h2>{{Compliance.Name}}</h2></b>
+		    <p>开始时间：{{StartDate}}；结束时间{{EndDate}}</p>
+		    <p>共安排{{Compliances.AllDays}}天任务，完成{{Compliances.DoDays}}天，未完成{{Compliances.UndoDays}}天</p>
+		    <p>chartdiv_{{Compliance.Code}}</p>
+		</ion-item>
+
+		<!-- <ion-item>
+		<div id='chartdiv' style="width: 100%; height: 400px;"></div>
+		</ion-item>
+ -->
+		<!-- 如果不存在当前计划，那么进行文字提醒 -->
+		<div ng-if="showGraph==false">
+	   		<div style="text-align:center;margin-top:50px;">    
+	      		<p style="color:#2894FF;font-size:16px;">{{graphText}}</p>
+	    	</div>
+		</div>
+	</ion-content>  
+</ion-view>

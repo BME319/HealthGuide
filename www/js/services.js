@@ -191,7 +191,8 @@ angular.module('zjubme.services', ['ionic','ngResource'])
               Target: {method:'GET', params:{route: 'Target'},timeout: 10000},
               PlanInfoChartDtl: {method:'GET', params:{route: 'PlanInfoChartDtl'},timeout: 10000, isArray:true},
               GetExecutingPlan: {method:'GET', isArray:true ,params:{route: 'Plan'},timeout: 10000},
-              GetComplianceListInC:{method:'GET', isArray:true ,params:{route: 'GetComplianceListInC'},timeout: 10000}
+              GetComplianceListInC:{method:'GET', isArray:true ,params:{route: 'GetComplianceListInC'},timeout: 10000},
+              TaskCompliances: {method:'GET', isArray:true, params:{route:'TaskCompliances'}, timeout:10000}
         });
     };
 
@@ -1102,7 +1103,7 @@ self.GetHealthCoaches = function (top, skip, filter) {
       deferred.reject(e);
     })
     return deferred.promise;
-  }
+  };
   self.GetComplianceListInC = function(data)
   {
     var deferred = $q.defer();
@@ -1110,6 +1111,15 @@ self.GetHealthCoaches = function (top, skip, filter) {
       deferred.resolve(s);
     },function(e){
       deferred.reject(e);
+    })
+    return deferred.promise;
+  };
+  self.TaskCompliances = function(PlanNo){
+    var deferred = $q.defer();
+    Data.PlanInfo.TaskCompliances({PlanNo:PlanNo}, function(data){
+      deferred.resolve(data);
+    },function(error){
+      deferred.reject(error);
     })
     return deferred.promise;
   }

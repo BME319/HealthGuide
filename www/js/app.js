@@ -122,7 +122,7 @@ angular.module('zjubme', ['ionic','zjubme.services', 'zjubme.directives', 'zjubm
       views: {
         'tab-tasks': {
           templateUrl: 'partials/tabs/index.task.tasklist.html',
-         controller: 'tasklistcontroller'
+          controller: 'tasklistcontroller'
         }
       }
     })
@@ -200,6 +200,15 @@ angular.module('zjubme', ['ionic','zjubme.services', 'zjubme.directives', 'zjubm
           'tab-target': {
             templateUrl: 'partials/catalog/catalog.calendar.html',
             controller: 'calendarcontroller'
+          }
+        }
+    })
+    .state('tab.compliance', {
+        url: '/compliance',
+        views: {
+          'tab-target': {
+            templateUrl: 'partials/tabs/tab.target.compliance.html',
+            controller: 'compliancecontroller'
           }
         }
     })
