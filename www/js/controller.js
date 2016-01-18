@@ -2231,6 +2231,18 @@ function($scope, $cordovaCalendar,PlanInfo,extraInfo) {
 .controller('graphcontroller', ['$scope', '$http','$ionicSideMenuDelegate','$timeout','$state','$window','$ionicPopover', 'PlanInfo','$ionicLoading', 'Storage',
     function($scope, $http, $ionicSideMenuDelegate,$timeout, $state, $window, $ionicPopover, PlanInfo, $ionicLoading, Storage) {
 
+      // --------------button修改 张桠童-----------------------//
+      $ionicPopover.fromTemplateUrl('popover-select-button.html', {
+        scope: $scope,
+      }).then(function(popover_others) {
+        $scope.popover_others = popover_others;
+      });
+
+      $scope.selectPop = function(){
+        $scope.popover_others.hide();
+      };
+      // --------------button修改 张桠童-----------------------//
+
       //固定变量guide 也可读自json文件
        var  UserId= Storage.get('UID');
        var SBPGuide='';
