@@ -70,7 +70,7 @@
         <ion-radio ng-repeat="item in sexList"
                    ng-value="item.value"
                    ng-model="selectMenu.selectedSex"
-                   ng-change="selectFunction()">
+                   ng-change="selectFunction(item.value)">
           {{ item.text }}
         </ion-radio>
      

@@ -2727,32 +2727,66 @@ function($scope, $cordovaCalendar,PlanInfo,extraInfo) {
       PlanInfo.Plan(UserId, "NULL", "M1", "3").then(function(data){
         if((data!=null) && (data!=''))
         {
+          // console.log(1);
           $scope.showGraph = true;
           PlanNo = data[0].PlanNo;
           $scope.StartDate = data[0].StartDate;
           $scope.EndDate = data[0].EndDate;
           //先决条件确定完毕后，读入依从率统计情况
           PlanInfo.TaskCompliances(PlanNo).then(function(data){
-            $scope.Compliances = data;
+            console.log(2);
+            // $scope.Compliances = data;
+            // console.log(data); 
+            // console.log(data.length);
+            // console.log(data[0].Code.substring(2));
+            /////////////////处理筛选数据，计算百分比//////////////////////
+            var j = 0;
+            for (var i = 0; i < data.length; i++) {
+              if (data[i].Code.substring(2)!="0000") {
+                $scope.Compliances[j] = data[i];
+                var a = $scope.Compliances[j].DoDays;
+                var b = $scope.Compliances[j].AllDays;
+                // $scope.Compliances[j].percents = $scope.Compliances[j].DoDays/$scope.Compliances[j].AllDays*100 ;
+                $scope.Compliances[j].percents_cplt = Math.round(a/b*100*100)/100 ; //计算完成率
+                $scope.Compliances[j].percents_uncplt = Math.round((100 - $scope.Compliances[j].percents_cplt)*100)/100; //未完成率
+                console.log($scope.Compliances[j].percents_uncplt);
+                j++;
+              };   
+            };
             console.log($scope.Compliances);
-            console.log($scope.Compliances.Code);
-            console.log($scope.Compliances[0].DoDays);
-            console.log($scope.Compliances[0].UndoDays);             
-            // //画图开始
-            // var chart = AmCharts.makeChart( "chartdiv_"+$scope.Compliances[0].Code, {
-            //   "type": "pie",
-            //   "dataProvider": [ {
-            //     "country": "未完成天数",
-            //     "litres": 501.9,   
-            //   }, {
-            //     "country": "完成天数",
-            //     "litres": 301.9,
-            //   }],
-            //   "valueField": "litres",
-            //   "titleField": "country",
-            //   "colors": ["#FF0000","#00FF00"],
-            // } );
-            // //画图结束
+            ////////////////////////////////////////////           
+                // // //画图开始
+                // console.log($scope.Compliances[0].UndoDays);
+                // var chart = AmCharts.makeChart( "chartdiv", {
+                //   "type": "pie",
+                //   "theme": "light",
+                //   "dataProvider": [ {
+                //     "title": "未完成天数",
+                //     "value": 5
+                //   }, {
+                //     "title": "完成天数",
+                //     "value": 0
+                //   } ],
+                //   "titleField": "title",
+                //   "valueField": "value",
+                //   "labelRadius": 5,
+                //   "labelText": "[[title]]: [[percents]]%",
+                //   "colors": ["#FF0000","#00FF00"],
+                //   "radius": "10%",
+                //   "innerRadius": "0%",
+                //   "legend":{
+                //     "position":"right",
+                //     "marginRight":20,
+                //     "markerSize":10,
+                //     "autoMargins":false
+                //   },
+                //   "export": {
+                //     "enabled": true
+                //   }
+                // } );
+                // //画图结束
+            ////////////////////////////////////////////           
+            
           }, function(error){
             //读取数据失败
           });
@@ -2766,15 +2800,6 @@ function($scope, $cordovaCalendar,PlanInfo,extraInfo) {
     };//初始化完毕
     init_view();
 
-    //依从率统计图
-    $scope.Compliances = function(){
-      // PlanInfo.TaskCompliances(PlanNo).then(function(data){
-      //   $scope.Compliances = data;
-      // }, function(error){
-      //   //读取数据失败
-      // });
-      
-    };
 }])
 //目标-列表 赵艳霞
 //目标-列表 赵艳霞
@@ -3559,15 +3584,16 @@ function($scope, $cordovaCalendar,PlanInfo,extraInfo) {
       $scope.selectMenu={selectedSex:'all'};
 
        //筛选函数
-       $scope.selectFunction = function(){
-           if($scope.selectFunction.selectedSex=="all")
+       $scope.selectFunction = function(value){
+           if(value=="all")
            {
-             $scope.filterCondition = "sex ge '1' ";
+             $scope.filterCondition = "sex ge '' "; //筛选初始值
            }
            else
            {
               $scope.filterCondition = "sex eq  '"+$scope.selectMenu.selectedSex+"'";
            } 
+           console.log($scope.selectMenu.selectedSex);
            $scope.healthCoachList = new Array();
            $scope.alertText='正在努力加载中...';
            $scope.GetHealthCoaches(10, 0, $scope.filterCondition);
@@ -4842,7 +4868,7 @@ function($scope, $cordovaCalendar,PlanInfo,extraInfo) {
 }])
 
 //----------------侧边栏----------------
-//个人信息
+//个人信息 张桠童
 .controller('personalInfocontroller',['$scope','$ionicHistory','$state','$ionicPopup','$resource','Storage','Data','CONFIG','$ionicLoading','$ionicPopover','Camera',
    function($scope, $ionicHistory, $state, $ionicPopup, $resource, Storage, Data,CONFIG, $ionicLoading, $ionicPopover, Camera) {             
       // 返回键

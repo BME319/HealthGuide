@@ -192,7 +192,7 @@ angular.module('zjubme.services', ['ionic','ngResource'])
               PlanInfoChartDtl: {method:'GET', params:{route: 'PlanInfoChartDtl'},timeout: 10000, isArray:true},
               GetExecutingPlan: {method:'GET', isArray:true ,params:{route: 'Plan'},timeout: 10000},
               GetComplianceListInC:{method:'GET', isArray:true ,params:{route: 'GetComplianceListInC'},timeout: 10000},
-              TaskCompliances: {method:'GET', isArray:true, params:{route:'TaskCompliances'}, timeout:10000}
+              TaskCompliances: {method:'GET', isArray:true, params:{route:'TaskCompliances'}, timeout:100000000}
         });
     };
 
