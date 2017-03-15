@@ -500,8 +500,8 @@ angular.module('zjubme.controllers', ['ionic','ngResource','zjubme.services', 'z
 }])
 // --------任务列表-马志彬----------------
 //侧边提醒
-.controller('SlidePageCtrl', ['$scope', '$ionicHistory', '$timeout', '$ionicModal', '$ionicSideMenuDelegate', '$http','NotificationService','$ionicListDelegate','PlanInfo','extraInfo','$ionicPopup', '$state', 'Storage','Data', 
-   function($scope, $ionicHistory, $timeout, $ionicModal, $ionicSideMenuDelegate, $http,NotificationService,$ionicListDelegate,PlanInfo,extraInfo, $ionicPopup,$state,Storage, Data) {
+.controller('SlidePageCtrl', ['$scope', '$ionicHistory', '$timeout', '$ionicModal', '$ionicSideMenuDelegate', '$http','NotificationService','$ionicListDelegate','PlanInfo','extraInfo','$ionicPopup', '$state', 'Storage','Data','$stateParams','$rootScope',
+   function($scope, $ionicHistory, $timeout, $ionicModal, $ionicSideMenuDelegate, $http,NotificationService,$ionicListDelegate,PlanInfo,extraInfo, $ionicPopup,$state,Storage, Data,$stateParams,$rootScope) {
       
       //我的专员未读消息
        // $scope.unreadMessageSum='';
@@ -537,6 +537,13 @@ angular.module('zjubme.controllers', ['ionic','ngResource','zjubme.services', 'z
       }
       $scope.lastviewtitle = $ionicHistory.backTitle();
       ////////////设置提醒/////////////
+
+     $rootScope.$on('$stateChangeSuccess', 
+      function(event, toState, toParams, fromState, fromParams){
+        if(toParams.id == 'alert')
+          $scope.alertlist = NotificationService.get();
+        console.log($scope.alertlist);
+      });
       $scope.checkalert = '';
       $scope.alerttitlecheck = function(c)
       {
@@ -565,12 +572,22 @@ angular.module('zjubme.controllers', ['ionic','ngResource','zjubme.services', 'z
           index:0,
           ID:parseInt(Math.random()*1000+1)
         };
+          // console.log($state.params.hasOwnProperty("tl"));
         if(i!=undefined)
         {
           $scope.alertcontent=i;
           $scope.flag='update';
+          $scope.alertcontent.time=new Date();
+          $scope.alertcontent.time.setHours($scope.alertcontent.hour);
+          $scope.alertcontent.time.setMinutes($scope.alertcontent.minute);
+          $scope.timePickerObject.inputEpochTime=($scope.alertcontent.hour * 60 * 60+$scope.alertcontent.minute*60);
         }
-        $scope.timePickerObject.inputEpochTime=((new Date()).getHours() * 60 * 60+(new Date()).getMinutes()*60);
+        else{
+          $scope.timePickerObject.inputEpochTime=((new Date()).getHours() * 60 * 60+(new Date()).getMinutes()*60);
+        }
+        if($state.params.hasOwnProperty("tl"))
+          $scope.flag='save';
+        //$scope.timePickerObject.inputEpochTime=((new Date()).getHours() * 60 * 60+(new Date()).getMinutes()*60);
       };
       $scope.closeModal = function() {
         $scope.modal.hide();
@@ -587,12 +604,14 @@ angular.module('zjubme.controllers', ['ionic','ngResource','zjubme.services', 'z
         closeButtonType: 'button-stable',  //Optional
         callback: function (val) {    //Mandatory
           timePickerCallback(val);
+          console.log(123);
         }
       };
       function timePickerCallback(val) {
         if (typeof (val) === 'undefined') {
           console.log('Time not selected');
         } else {
+          console.log(val);
           var SelectedTime = new Date(val * 1000);
           $scope.alertcontent.time.setHours(SelectedTime.getUTCHours());
           $scope.alertcontent.time.setMinutes(SelectedTime.getUTCMinutes());
@@ -606,20 +625,21 @@ angular.module('zjubme.controllers', ['ionic','ngResource','zjubme.services', 'z
       {
         if(c)
         {
-          // console.log($scope.flag);
+          console.log($scope.alertcontent);
           if($scope.flag=='update')
           {
             $scope.flag='save';
             NotificationService.update($scope.alertcontent);
-            $scope.alertlist = NotificationService.get();
             $scope.closeModal();
+            $scope.alertlist = NotificationService.get();
+            console.log($scope.alertlist);
           }else{
             // console.log('save');
             // console.log($scope.alertcontent);
             NotificationService.save($scope.alertcontent);
-            $scope.alertlist = NotificationService.get();
-            // console.log($scope.alertlist);
             $scope.closeModal();
+            $scope.alertlist = NotificationService.get();
+            console.log($scope.alertlist);
           }
         }else $scope.checkalert = 'required';
       }
@@ -783,7 +803,7 @@ function($scope,$ionicModal,$stateParams,$state,extraInfo,$cordovaInAppBrowser,T
   });
   $scope.openHeModal = function(code) {//healtheducation modal
     detail.ParentCode=code;
-    // console.log(code);
+    console.log(code);
     TaskInfo.GetTasklist(detail).then(function(s){
       console.log(s);
       $scope.helist=s;
@@ -886,7 +906,7 @@ function($scope,$ionicModal,$stateParams,$state,extraInfo,$cordovaInAppBrowser,T
       index:0,
       ID:parseInt(Math.random()*1000+1)
     };
-    // console.log(a);
+    console.log(a);
     if(a.Instruction!='')
       content.detail=a.Instruction
     $scope.openModal(content);
@@ -1612,12 +1632,16 @@ function($scope,$ionicModal,$stateParams,$state,extraInfo,$cordovaInAppBrowser,T
     ItemCode:"Height_1"
   }]
   VitalInfo.GetLatestPatientVitalSigns(get[0]).then(function(s){
-    console.log(s);
-    $scope.BMI.weight = parseInt(s.Value);
+    if(s.Value!=null)
+      $scope.BMI.weight = parseInt(s.Value);
+    else
+      $scope.BMI.weight = "";
     VitalInfo.GetLatestPatientVitalSigns(get[1]).then(function(s){
-      $scope.BMI.height = parseInt(s.Value);
+      if(s.Value!=null)
+        $scope.BMI.height = parseInt(s.Value);
+      else
+        $scope.BMI.height = "";
       setTimeout(function() {mathbmi();setchartband();setchartValue();}, 1000);
-      console.log(s);
     });
   });
   var mathbmi = function()
@@ -1738,7 +1762,7 @@ function($scope,$ionicModal,$stateParams,$state,extraInfo,$cordovaInAppBrowser,T
         "innerRadius": "95%",
         "startValue": 0
       } ],
-      "bottomText": "0 km/h",
+      "bottomText": "",
       "bottomTextYOffset": -20,
       "endValue": 150
     } ],
@@ -1786,7 +1810,7 @@ function($scope,$ionicModal,$stateParams,$state,extraInfo,$cordovaInAppBrowser,T
   }
   //////////////////////
   var setchartValue = function() {
-    if($scope.BMI.height!=undefined&&$scope.BMI.weight!=undefined)
+    if($scope.BMI.height&&$scope.BMI.weight)
     {
       if ( gaugeChart ) {
         if ( gaugeChart.arrows ) {
@@ -1794,11 +1818,14 @@ function($scope,$ionicModal,$stateParams,$state,extraInfo,$cordovaInAppBrowser,T
             if ( gaugeChart.arrows[ 0 ].setValue ) {
               gaugeChart.arrows[ 0 ].setValue( $scope.BMI.weight );
               gaugeChart.axes[ 0 ].setBottomText("BMI:"+($scope.BMI.BMI*10000).toFixed(2)+'\n'+$scope.BMI.height + "cm  "+$scope.BMI.weight + "Kg");
-              // console.log(($scope.BMI.BMI*10000).toFixed(2));
+              console.log(($scope.BMI.BMI*10000).toFixed(2));
             }
           }
         }
       }
+    }else{
+      gaugeChart.arrows[ 0 ].setValue( 0 );
+      gaugeChart.axes[ 0 ].setBottomText("BMI:0"+'\n'+ 0 + "cm  "+ 0 + "Kg");
     }
   }
   var setchartband = function()
@@ -2169,8 +2196,8 @@ function($scope,$ionicModal,$stateParams,$state,extraInfo,$cordovaInAppBrowser,T
   ////////////////////////////////
 }])
 
-.controller('alertcontroller',['$scope', '$timeout', '$ionicModal', '$ionicHistory', '$cordovaDatePicker','$cordovaLocalNotification','NotificationService',
-function($scope, $timeout, $ionicModal,$ionicHistory, $cordovaDatePicker,$cordovaLocalNotification, NotificationService) {
+.controller('alertcontroller',['$scope', '$timeout', '$ionicModal', '$ionicHistory', '$cordovaDatePicker','$cordovaLocalNotification','NotificationService','$rootScope',
+function($scope, $timeout, $ionicModal,$ionicHistory, $cordovaDatePicker,$cordovaLocalNotification, NotificationService,$rootScope) {
   // $scope.nvGoback = function() {
   //   $ionicHistory.goBack();
   // }
@@ -5312,10 +5339,11 @@ $scope.$on('RisksGet',function(){
           Data.Users.GetPatBasicInfo({route:urltemp1}, 
                         function (success, headers) {
                           $scope.BasicInfo = success;
+                          console.log($scope.BasicInfo);
                           Data.Users.GetPatientDetailInfo({route:urltemp2}, 
                             function (success, headers) {
                               $scope.BasicDtlInfo = success;
-                              // console.log(success.Birthday);
+                              console.log($scope.BasicDtlInfo);
                               // 将string转化成number(Int型数据)
                               $scope.BasicDtlInfo.Height = parseInt(success.Height);
                               $scope.BasicDtlInfo.Weight = parseInt(success.Weight);
@@ -5532,6 +5560,8 @@ $scope.$on('RisksGet',function(){
                                             DeviceType: extraInfo.postInformation().DeviceType
                                           }];
           // 基本信息的修改
+          console.log(temp_SetPatBasicInfo);
+          console.log(temp_PostPatBasicInfoDetail);
           Data.Users.SetPatBasicInfo(temp_SetPatBasicInfo, 
               function (success, headers) {
                 if (success.result="数据插入成功") {

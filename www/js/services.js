@@ -9,7 +9,7 @@ angular.module('zjubme.services', ['ionic','ngResource'])
   //TerminalName: "",
   //TerminalIP: "",
   DeviceType: '1',
-  ImageAddressIP: "http://121.43.107.106:8088",
+  ImageAddressIP: "http://121.43.107.106:8089",
   ImageAddressFile : "/PersonalPhoto",
   // ImageAddress = ImageAddressIP + ImageAddressFile + "/" + DoctorId + ".jpg";
   consReceiptUploadPath: 'cons/receiptUpload',
@@ -1680,6 +1680,7 @@ self.GetHealthCoaches = function (top, skip, filter) {
 .factory('NotificationService',['$cordovaLocalNotification','extraInfo',function($cordovaLocalNotification,extraInfo){
   return{
     save:function(arr){
+      console.log(123);
       var a=[];
       a[0]=arr;
       var t= angular.fromJson(window.localStorage['alertlist']);
@@ -1696,7 +1697,7 @@ self.GetHealthCoaches = function (top, skip, filter) {
         id: arr.ID,
         title: arr.title,
         text: arr.detail,
-        firstAt: arr.time,
+        at: arr.time,
         every: "day",
         sound: "file://sources/Nokia.mp3",
         icon: "file://img/ionic.png"
@@ -1704,7 +1705,7 @@ self.GetHealthCoaches = function (top, skip, filter) {
       if(extraInfo.DeviceParams('DeviceType')!='win32')
         {
           $cordovaLocalNotification.schedule(n);
-          // console.log("call cordovaLocalNotification")
+          console.log("call cordovaLocalNotification")
         }
     },
     get:function(){

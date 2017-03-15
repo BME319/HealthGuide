@@ -306,7 +306,7 @@ angular.module('zjubme', ['ionic','zjubme.services', 'zjubme.directives', 'zjubm
       {
         return 'ChatDetailCtrl';
       }
-  }
+    }
   })
     .state('healthCoach', {
       url: '/healthCoach',
